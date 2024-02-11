@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, throwError } from 'rxjs';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
+import { catchError, mergeMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,21 +12,13 @@ export class ApiService {
 
   constructor(private httpClient: HttpClient) {}
 
-  getUser(githubUsername: string): Observable<any> {
-    return this.httpClient.get(`https://api.github.com/users/${githubUsername}`).pipe(
-      catchError(error => {
-        console.error('Error:', error);
-        return throwError(error);
-      })
-    );
-  }
-
   getRepos(githubUsername: string): Observable<any[]> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.githubToken}`
-    });
-
-    return this.httpClient.get<any[]>(`https://api.github.com/users/${githubUsername}/repos`, { headers }).pipe(
+    let headers = new HttpHeaders();
+    if (this.githubToken) {
+      headers = headers.append('Authorization', `token ${this.githubToken}`);
+    }    
+    
+    return this.httpClient.get<any[]>(`https://api.github.com/users/${githubUsername}/repos?per_page=100`, { headers }).pipe(
       catchError(error => {
         console.error('Error fetching repositories:', error);
         return throwError(error);
@@ -37,13 +29,18 @@ export class ApiService {
             catchError(error => {
               console.error('Error fetching languages:', error);
               return throwError(error);
-            }),
-            map((languages: any) => {
-              return { ...repo, languages };
             })
           );
         });
-        return forkJoin(observables) as Observable<any[]>;
+        return forkJoin(observables).pipe(
+          catchError(error => {
+            console.error('Error fetching languages:', error);
+            return throwError(error);
+          }),
+          mergeMap(languages => {
+            return of(repos.map((repo, index) => ({ ...repo, languages: languages[index] })));
+          })
+        );
       })
     );
   }

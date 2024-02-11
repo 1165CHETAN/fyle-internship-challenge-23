@@ -37,10 +37,21 @@
     </div>
 
     <div class="mt-2 bg-white bg-opacity-50 rounded-lg p-8" *ngIf="repositories.length > 0">
+
+      <!-- Pagination page size selection -->
+<div class="flex justify-between items-center">
+  <label for="pageSize" class="text-violet-800 text-xl font-semibold mr-2">Page Size:</label>
+  <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500">
+    <option value="10">10</option>
+    <option value="25">25</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+</div>
+
       <!-- Actual repositories -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4" *ngIf="dataLoaded && !isLoadingUser">
-        <div *ngFor="let repo of repositories.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
-             class="bg-gray-600 p-4 rounded-lg border-b-8 border-violet-500 hover:border-sky-500 hover:bg-gray-700 transition duration-300 shadow-md hover:shadow-xl relative">
+        <div *ngFor="let repo of repositories.slice((currentPage - 1) * pageSize, currentPage * pageSize)" class="bg-gray-600 p-4 rounded-lg border-b-8 border-violet-500 hover:border-sky-500 hover:bg-gray-700 transition duration-300 shadow-md hover:shadow-xl relative">
           <a [href]="repo.html_url" target="_blank" class="underline decoration-sky-400 text-white font-semibold">{{ repo.name }}</a>
           <hr class="my-2 border-gray-300">
           <div class="text-white mt-2">- {{ repo.description }}</div>
@@ -52,8 +63,15 @@
         </div>
       </div>
 
+      <!-- Pagination controls -->
+      <hr class="my-2 mt-8 border-violet-300">
+      <div class="flex justify-center items-center mt-8">
+        <button class="px-4 py-2 bg-indigo-500 text-white rounded-md mr-2 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700" (click)="prevPage()" [disabled]="currentPage === 1">← Older</button>
+        <ng-container *ngFor="let pageNumber of getPageNumbers()">
+          <button class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mx-1 hover:bg-gray-400 focus:outline-none focus:bg-gray-400" [class.bg-blue-500]="pageNumber === currentPage" [disabled]="pageNumber === currentPage" (click)="goToPage(pageNumber)">{{ pageNumber }}</button>
+        </ng-container>
+        <button class="px-4 py-2 bg-indigo-500 text-white rounded-md ml-2 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700" (click)="nextPage()">Newer →</button>
+      </div>
     </div>
   </div>
-
 </div>
-
