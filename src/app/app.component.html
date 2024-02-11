@@ -1,5 +1,6 @@
 <div class="bg-violet-100 min-h-screen">
   <div class="container mx-auto px-4 py-8">
+
     <div class="font-bold text-3xl text-violet-600 title">
       fyle-frontend-challenge
     </div>
@@ -9,11 +10,14 @@
       <button (click)="searchUser(searchUsername)" class="px-4 py-2 bg-violet-500 text-white rounded-r-md hover:bg-violet-600 transition duration-300">Search</button>
     </div>
 
+    <div *ngIf="userNotFound" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-6 rounded relative" role="alert">
+      <strong class="font-bold">Holy smokes!🙁Hey, enter a valid username!</strong>
+      <span class="absolute top-0 bottom-0 right-0 px-4 py-3"></span>
+    </div>
+
     <ng-container *ngIf="!userNotFound && user">
       <div class="mt-4 bg-violet-800 border-b-8 border-violet-800 bg-opacity-70 rounded-lg p-8 flex items-center shadow-lg">
         <img *ngIf="user.avatar_url" [src]="user.avatar_url" alt="Avatar" class="rounded-full bg-white h-20 w-20 shadow-md">
-
-        <!-- Vertical divider -->
         <div class="border-l border-gray-300 ml-4 pl-4">
           <div *ngIf="user.name" class="text-xl font-semibold text-white">{{ user.name }}
             <a *ngIf="user.name" [href]="'https://github.com/' + user.name" target="_blank">
@@ -26,52 +30,68 @@
           <div *ngIf="user.location" class="text-white">📍: {{ user.location }}</div>
           <div *ngIf="user.company" class="text-white">Company : {{ user.company }}</div>
           <div *ngIf="user.email" class="text-white">✉️ : {{ user.email }}</div>
-          <div *ngIf="user.followers" class="text-white">Followers: {{ formatFollowersCount(user.followers) }}</div>
+          <div *ngIf="user.public_repos" class="text-white">Public Repositories: {{ user.public_repos }}</div>
+          <div *ngIf="user.followers" class="text-white">Followers: {{ user.followers }}</div>
+          <div *ngIf="user.following" class="text-white">Following: {{ user.following }}</div>
         </div>
       </div>
     </ng-container>
 
-    <div *ngIf="userNotFound" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-6 rounded relative" role="alert">
-      <strong class="font-bold">Holy smokes!🙁Hey, enter a valid username!</strong>
-      <span class="absolute top-0 bottom-0 right-0 px-4 py-3"></span>
-    </div>
+    
 
-    <div class="mt-2 bg-white bg-opacity-50 rounded-lg p-8" *ngIf="repositories.length > 0">
+     
 
-      <!-- Pagination page size selection -->
-<div class="flex justify-between items-center">
-  <label for="pageSize" class="text-violet-800 text-xl font-semibold mr-2">Page Size:</label>
-  <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500">
-    <option value="10">10</option>
-    <option value="25">25</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
-  </select>
-</div>
+        <!-- Skeleton loading for repositories -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4" *ngIf="!dataLoaded && isLoadingUser">
+          <div *ngFor="let _ of generateArray(pageSize)" class="bg-gray-400 p-4 rounded-lg border-b-8 border-violet-500 transition duration-300 shadow-md">
+            <div class="animate-pulse bg-gray-500 h-4 w-full rounded mb-2"></div>
+            <div class="animate-pulse bg-gray-500 h-4 w-3/4 rounded mb-2"></div>
+            <div class="animate-pulse bg-gray-500 h-4 w-1/2 rounded mb-2"></div>
+          </div>
+        </div>
 
-      <!-- Actual repositories -->
+      <!-- Pagination controls -->
+      <div *ngIf="dataLoaded && !isLoadingUser" class="mt-8">
+        <!-- Pagination page size selection -->
+        <div class="flex justify-between items-center">
+          <label for="pageSize" class="text-violet-800 text-xl font-semibold mr-2">Page Size:</label>
+          <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+
+       
+
+      <!-- Repositories -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4" *ngIf="dataLoaded && !isLoadingUser">
         <div *ngFor="let repo of repositories.slice((currentPage - 1) * pageSize, currentPage * pageSize)" class="bg-gray-600 p-4 rounded-lg border-b-8 border-violet-500 hover:border-sky-500 hover:bg-gray-700 transition duration-300 shadow-md hover:shadow-xl relative">
           <a [href]="repo.html_url" target="_blank" class="underline decoration-sky-400 text-white font-semibold">{{ repo.name }}</a>
           <hr class="my-2 border-gray-300">
-          <div class="text-white mt-2">- {{ repo.description }}</div>
-          <div *ngIf="repo.languages && Object.keys(repo.languages).length > 0" class="text-white mt-2">
-            <span *ngFor="let lang of Object.keys(repo.languages); let i = index">
-              {{ lang }}{{ i !== Object.keys(repo.languages).length - 1 ? ', ' : '' }}
-            </span>
+          <div class="text-white mt-2">{{ repo.description }}</div>
+          <div class="text-white mt-2 flex">
+            <div class="bg-gray-400 text-white text-sm px-2 py-1 rounded mr-2">⭐{{ repo.stargazers_count }}</div>
+            <div *ngIf="repo.language" class="bg-gray-400 text-white text-sm px-2 py-1 rounded">{{ repo.language }}</div>
           </div>
+          <!-- Add more repository details here -->
         </div>
       </div>
 
-      <!-- Pagination controls -->
-      <hr class="my-2 mt-8 border-violet-300">
-      <div class="flex justify-center items-center mt-8">
-        <button class="px-4 py-2 bg-indigo-500 text-white rounded-md mr-2 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700" (click)="prevPage()" [disabled]="currentPage === 1">← Older</button>
-        <ng-container *ngFor="let pageNumber of getPageNumbers()">
-          <button class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mx-1 hover:bg-gray-400 focus:outline-none focus:bg-gray-400" [class.bg-blue-500]="pageNumber === currentPage" [disabled]="pageNumber === currentPage" (click)="goToPage(pageNumber)">{{ pageNumber }}</button>
-        </ng-container>
-        <button class="px-4 py-2 bg-indigo-500 text-white rounded-md ml-2 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700" (click)="nextPage()">Newer →</button>
-      </div>
-    </div>
+        <!-- Pagination controls -->
+        <hr class="my-2 mt-8 border-violet-300">
+        <div class="flex justify-center items-center mt-8">
+          <button class="px-4 py-2 bg-indigo-500 text-white rounded-md mr-2 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700" (click)="prevPage()" [disabled]="currentPage === 1">← Older</button>
+          <ng-container *ngFor="let pageNumber of getPageNumbers()">
+            <button class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mx-1 hover:bg-gray-400 focus:outline-none focus:bg-gray-400" [class.bg-blue-500]="pageNumber === currentPage" [disabled]="pageNumber === currentPage" (click)="goToPage(pageNumber)">{{ pageNumber }}</button>
+          </ng-container>
+          <button class="px-4 py-2 bg-indigo-500 text-white rounded-md ml-2 hover:bg-indigo-700 focus:outline-none focus:bg-indigo-700" (click)="nextPage()">Newer →</button>
+        </div>
+
+     
+      
+      
+    
   </div>
 </div>

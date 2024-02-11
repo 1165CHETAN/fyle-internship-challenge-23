@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from './services/api.service';
-import { HttpClient } from '@angular/common/http'; // Import HttpClient module
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -17,10 +16,10 @@ export class AppComponent implements OnInit {
   dataLoaded: boolean = false;
   currentPage: number = 1;
   pageSize: number = 10;
-  skeletonArray: any[] = Array(10).fill(0);
-
+  loadingRepositories: boolean = false;
+  pagedRepositories: any[] = [];
+  
   constructor(
-    private apiService: ApiService,
     private http: HttpClient // Inject HttpClient module
   ) {}
 
@@ -30,7 +29,8 @@ export class AppComponent implements OnInit {
     this.isLoadingUser = true;
     this.userNotFound = false;
     this.repositories = [];
-
+    this.loadingRepositories = true;
+    
     // Fetch user data
     this.http.get<any>('https://api.github.com/users/' + username).subscribe(
       (user: any) => {
@@ -42,9 +42,12 @@ export class AppComponent implements OnInit {
         this.http.get<any[]>('https://api.github.com/users/' + username + '/repos').subscribe(
           (repos: any[]) => {
             this.repositories = repos;
+            this.loadingRepositories = false;
+            this.paginateRepositories();
           },
           (error) => {
             console.error('Error fetching repositories:', error);
+            this.loadingRepositories = false;
           }
         );
       },
@@ -52,41 +55,48 @@ export class AppComponent implements OnInit {
         console.error('Error fetching user:', error);
         this.userNotFound = true;
         this.isLoadingUser = false;
+        this.loadingRepositories = false;
       }
     );
   }
 
-  formatFollowersCount(count: number): string {
-    if (count > 1000) {
-      return (count / 1000).toFixed(1) + 'k';
-    } else {
-      return count.toString();
-    }
+  paginateRepositories() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    this.pagedRepositories = this.repositories.slice(startIndex, startIndex + this.pageSize);
   }
 
   onPageSizeChange() {
     this.currentPage = 1;
+    this.paginateRepositories();
   }
 
-  getPageNumbers(): number[] {
+  getPageNumbers() {
     const pageCount = Math.ceil(this.repositories.length / this.pageSize);
     return Array(pageCount).fill(0).map((x, i) => i + 1);
   }
 
   goToPage(pageNumber: number) {
     this.currentPage = pageNumber;
+    this.paginateRepositories();
   }
 
   prevPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
+      this.paginateRepositories();
     }
   }
+    // Method to generate an array of the specified length
+    generateArray(length: number): any[] {
+      return Array.from({ length });
+    }
+  
 
   nextPage() {
     const pageCount = Math.ceil(this.repositories.length / this.pageSize);
     if (this.currentPage < pageCount) {
       this.currentPage++;
+      this.paginateRepositories();
     }
   }
 }
