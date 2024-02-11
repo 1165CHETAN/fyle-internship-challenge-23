@@ -1,5 +1,59 @@
-<div class="grid h-screen place-items-center">
-  <div class="font-bold text-3xl">
-    Fyle Internship Challenge
+<div class="bg-violet-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <div class="font-bold text-3xl text-violet-600 title">
+      fyle-frontend-challenge
+    </div>
+
+    <div class="mt-8 flex">
+      <input type="text" [(ngModel)]="searchUsername" placeholder="🙋🏻‍♂️Hey Enter Github Username..." class="w-full px-8 py-2 border border-violet-300 rounded-l-md focus:border-violet-500 focus:outline-none transition duration-300">
+      <button (click)="searchUser(searchUsername)" class="px-4 py-2 bg-violet-500 text-white rounded-r-md hover:bg-violet-600 transition duration-300">Search</button>
+    </div>
+
+    <ng-container *ngIf="!userNotFound && user">
+      <div class="mt-4 bg-violet-800 border-b-8 border-violet-800 bg-opacity-70 rounded-lg p-8 flex items-center shadow-lg">
+        <img *ngIf="user.avatar_url" [src]="user.avatar_url" alt="Avatar" class="rounded-full bg-white h-20 w-20 shadow-md">
+
+        <!-- Vertical divider -->
+        <div class="border-l border-gray-300 ml-4 pl-4">
+          <div *ngIf="user.name" class="text-xl font-semibold text-white">{{ user.name }}
+            <a *ngIf="user.name" [href]="'https://github.com/' + user.name" target="_blank">
+              <button class="bg-violet-700 hover:bg-violet-900 text-white font-bold py-1 px-2 rounded text-sm">
+                Visit GitHub Profile 🡥
+              </button>
+            </a>
+          </div>
+          <div *ngIf="user.bio" class="text-white mt-2">{{ user.bio }}</div>
+          <div *ngIf="user.location" class="text-white">📍: {{ user.location }}</div>
+          <div *ngIf="user.company" class="text-white">Company : {{ user.company }}</div>
+          <div *ngIf="user.email" class="text-white">✉️ : {{ user.email }}</div>
+          <div *ngIf="user.followers" class="text-white">Followers: {{ formatFollowersCount(user.followers) }}</div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div *ngIf="userNotFound" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-6 rounded relative" role="alert">
+      <strong class="font-bold">Holy smokes!🙁Hey, enter a valid username!</strong>
+      <span class="absolute top-0 bottom-0 right-0 px-4 py-3"></span>
+    </div>
+
+    <div class="mt-2 bg-white bg-opacity-50 rounded-lg p-8" *ngIf="repositories.length > 0">
+      <!-- Actual repositories -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4" *ngIf="dataLoaded && !isLoadingUser">
+        <div *ngFor="let repo of repositories.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
+             class="bg-gray-600 p-4 rounded-lg border-b-8 border-violet-500 hover:border-sky-500 hover:bg-gray-700 transition duration-300 shadow-md hover:shadow-xl relative">
+          <a [href]="repo.html_url" target="_blank" class="underline decoration-sky-400 text-white font-semibold">{{ repo.name }}</a>
+          <hr class="my-2 border-gray-300">
+          <div class="text-white mt-2">- {{ repo.description }}</div>
+          <div *ngIf="repo.languages && Object.keys(repo.languages).length > 0" class="text-white mt-2">
+            <span *ngFor="let lang of Object.keys(repo.languages); let i = index">
+              {{ lang }}{{ i !== Object.keys(repo.languages).length - 1 ? ', ' : '' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
+
 </div>
+
