@@ -44,6 +44,9 @@
           
         </div>
       </div>
+     
+      
+
 
       <!-- Actual user details -->
       <div *ngIf="!isLoadingUser" class="mt-4 bg-violet-800 border-b-8 border-violet-800 bg-opacity-70 rounded-lg p-8 flex items-center shadow-lg">
@@ -73,7 +76,15 @@
      
 
         <!-- Skeleton loading for repositories -->
-       
+        <div *ngIf="loadingRepositories">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-8">
+            <div class="bg-gray-200 rounded-lg shadow-md p-4 animate-pulse" *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]">
+              <div class="h-4 bg-gray-300 rounded w-2/3 mb-2"></div>
+              <div class="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
+              <div class="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+            </div>
+          </div>
+        </div>
 
       <!-- Pagination controls -->
       <div *ngIf="dataLoaded && !isLoadingUser" class="mt-8">
@@ -84,6 +95,7 @@
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="30">30</option>
+            <option value="100">100</option>
           </select>
         </div>
 
@@ -96,8 +108,8 @@
           <hr class="my-2 border-gray-300">
           <div class="text-white mt-2">{{ repo.description }}</div>
           <div class="text-white mt-2 flex">
-            <div class="bg-gray-500 text-white text-sm px-2 py-1 rounded mr-2">⭐{{ repo.stargazers_count }}</div>
-            <div *ngIf="repo.language" class="bg-sky-500 text-white text-sm px-2 py-1 rounded">{{ repo.language }}</div>
+            <div class="bg-gray-300 text-gray-800 text-sm px-2 py-1 rounded mr-2">☆{{ repo.stargazers_count }}</div>
+            <div *ngIf="repo.language" class="bg-gray-300 text-gray-700 text-sm px-2 py-1 rounded">{{ repo.language }}</div>
           </div>
           <!-- Add more repository details here -->
         </div>

@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   pageSize: number = 10;
   loadingRepositories: boolean = false;
   pagedRepositories: any[] = [];
+  isLoadingRepositories: boolean = false;
   
   constructor(
     private http: HttpClient // Inject HttpClient module
