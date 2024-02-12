@@ -1,7 +1,8 @@
 
 ## Fyle Internship Challenge | Chetan Chavan
 
-### [Link](https://tamagui-chetan-chavan-next.vercel.app)      |    [Explanatory Video](https://www.canva.com/design/DAF6U2BvOdQ/cXD78Va2DEtXsv4ap6ZHZQ/watch?utm_content=DAF6U2BvOdQ&utm_campaign=designshare&utm_medium=link&utm_source=editor) 
+### [Link](https://fyle-internship-challenge-23-chetan-chavan.vercel.app)      |    [Explanatory Video](https://www.canva.com/design/DAF3x7sivgg/sIPiP1PUu-i7qshJk6JK4w/watch?utm_content=DAF3x7sivgg&utm_campaign=designshare&utm_medium=link&utm_source=editor) 
+
 ![6](https://github.com/1165CHETAN/fyle-internship-challenge-23/assets/111604779/c184169a-22d7-4927-bdb2-0434603ff562)
 
 
